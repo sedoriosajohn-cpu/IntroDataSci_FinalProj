@@ -16,4 +16,17 @@ retire <- df_clean |>
          EQUITY, VEHIC, HBROK, NOWN, NLEASE, DEBT, RENT,
          BNPL, TPAY, REVPAY, MORTPAY, CONSPAY, KNOWL, 
          FOODHOME, FOODDELV, FOODAWAY)
-retire
+#labeling the education level 
+retire <- retire |>
+  mutate(EDUC_LABEL = case_when(
+    EDUC < 8 ~ "No HS Diploma",
+    EDUC == 8 ~ "HS Diploma", 
+    EDUC == 9 ~ "Some College",
+    EDUC <= 11  ~ "Associate Degree",
+    EDUC == 12 ~ "Bachelor's Degree",
+    EDUC == 13 ~ "Master's Degree",
+    EDUC == 14 ~ "Doctorate or Professional Degree"
+  ))
+#checking if it's correct 
+print(retire[, c("EDUC","EDUC_LABEL")], n = 40)
+
