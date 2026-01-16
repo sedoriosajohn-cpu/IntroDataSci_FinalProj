@@ -92,6 +92,9 @@ edu_saving_graph <- edu_saving |>
     caption = "Source: 2022 Survey of Consumer Finances (SCF)"
   ) +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none", 
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust =1))
 print(edu_saving_graph)
-  
+
+
+
