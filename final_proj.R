@@ -76,6 +76,8 @@ edu_saving <- retire |>
 
 print(edu_saving)
 
+
+#saving to income ratio (weighted to represent entire US population) by education level
 edu_saving_graph <- edu_saving |>
   ggplot(mapping = aes(x = reorder(EDUC_LABEL, POP_RATIO), 
                        y = POP_RATIO, fill = EDUC_LABEL)) +
@@ -85,10 +87,10 @@ edu_saving_graph <- edu_saving |>
   coord_flip() +
   scale_y_continuous(labels = scales::percent, expand = expansion(mult = c(0, .15))) +
   labs(
-    title = "Weighted Savings-to-Income Ratio by Education",
+    title = "Savings-to-Income Ratio by Highest Education Completed",
     subtitle = "Households Headed by Adults Age 45 and Under",
     x = "Education Level",
-    y = "Savings Ratio (Savings / Income)",
+    y = "Savings Ratio ",
     caption = "Source: 2022 Survey of Consumer Finances (SCF)"
   ) +
   theme_minimal() +
