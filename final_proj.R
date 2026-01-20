@@ -100,3 +100,27 @@ print(edu_saving_graph)
 
 
 
+#good graph
+retire <- retire |>
+  group_by(AGE) |>
+  mutate(
+    INCOME.25 = quantile(INCOME, 0.25, na.rm = TRUE),
+    INCOME.75 = quantile(INCOME, 0.75, na.rm = TRUE)
+  )
+p <- ggplot(retire, aes(AGE, INCOME)) +
+  theme(plot.background = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),  
+        axis.title = element_blank()) +
+  geom_linerange(retire, mapping=aes(x=AGE, ymin=INCOME.25, ymax=INCOME.75), colour = "gray", alpha=.5) +
+  geom_linerange(retire, mapping=aes(x = AGE, ymin = INCOME.25, ymax = INCOME.75), colour = "darkgray") +
+  geom_line(retire, mapping=aes(x = AGE, y = DEBT), color = "red") +
+  geom_line(retire, mapping=aes(x = AGE, y = SAVING), color = "blue")
+  
+
+  
+  
