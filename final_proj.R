@@ -1,6 +1,8 @@
 library(tidyverse)
 library(skimr)
 library(ggridges) #from gemini 
+library(scales)
+library(ggdist)
 df <- read_csv("C:\\Users\\johnsedoriosa\\Downloads\\scfp2022excel\\SCFP2022.csv")
 
 #reading dataset
@@ -151,12 +153,24 @@ income <- df_clean |>
     EDUC == 14 ~ "Doctorate or Professional Degree"
   ))
 
-ggplot(income, aes(x = INCOME, y = EDUC_LABEL, fill = EDUC_LABEL)) +
-  geom_density_ridges(alpha = 0.6, bandwidth = 10000) +
+j <- ggplot(income, aes(x = INCOME, y = EDUC_LABEL, fill = EDUC_LABEL)) +
+  geom_density_ridges(alpha = 0.6, bandwidth = 10000, scale = 1) +
   coord_cartesian(xlim = c(0, 300000)) + 
   theme_ridges() + 
   labs(title = "Income Distribution by Education Level",
        x = "Annual Income ($)", y = "Education Category") +
   guides(fill = "none")
-  
-  
+
+print(j)
+
+ggplot(income |> filter(INCOME < 300000), aes(x = INCOME, y = factor(EDUC_LABEL), fill = factor(EDUC_LABEL))) +
+  # The Cloud (Density)
+  stat_halfeye(adjust = .5, width = .6, .width = 0, justification = -.3, point_colour = NA) +
+  # The Boxplot (Middle detail)
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  # The Rain (Individual dots at the bottom)
+  stat_dots(side = "left", justification = 1.1, binwidth = 2000) +
+  scale_x_continuous(labels = label_dollar()) +
+  theme_minimal() +
+  guides(fill = "none") +
+  labs(title = "Wealth Distribution Raincloud Plot")
