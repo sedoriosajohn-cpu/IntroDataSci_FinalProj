@@ -1,5 +1,6 @@
 library(tidyverse)
 library(skimr)
+library(ggridges) #from gemini 
 df <- read_csv("C:\\Users\\johnsedoriosa\\Downloads\\scfp2022excel\\SCFP2022.csv")
 
 #reading dataset
@@ -98,29 +99,64 @@ edu_saving_graph <- edu_saving |>
         axis.text.x = element_text(angle = 45, vjust = 1, hjust =1))
 print(edu_saving_graph)
 
-
+#checking how much each age appears
+AGE_COUNT <- retire |>
+  count(AGE)
+AGE_COUNT
 
 #good graph
-retire <- retire |>
+retire_sum <- retire |>
+  filter(DEBT < 500000, AGE < 67) |>
   group_by(AGE) |>
-  mutate(
+  filter(n() >= 20) |> #filters if there's at least 20 rows at the same age
+  summarize(
     INCOME.25 = quantile(INCOME, 0.25, na.rm = TRUE),
-    INCOME.75 = quantile(INCOME, 0.75, na.rm = TRUE)
+    INCOME.75 = quantile(INCOME, 0.75, na.rm = TRUE),
+    AVG_DEBT = median(DEBT, na.rm=TRUE),
+    AVG_SAVING = median(SAVING, na.rm = TRUE)
   )
-p <- ggplot(retire, aes(AGE, INCOME)) +
-  theme(plot.background = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text = element_blank(),  
-        axis.title = element_blank()) +
-  geom_linerange(retire, mapping=aes(x=AGE, ymin=INCOME.25, ymax=INCOME.75), colour = "gray", alpha=.5) +
-  geom_linerange(retire, mapping=aes(x = AGE, ymin = INCOME.25, ymax = INCOME.75), colour = "darkgray") +
-  geom_line(retire, mapping=aes(x = AGE, y = DEBT), color = "red") +
-  geom_line(retire, mapping=aes(x = AGE, y = SAVING), color = "blue")
-  
 
+p <- ggplot(retire_sum, aes(x = AGE)) +
+  #Background range (25th to 75th percentile)
+  geom_linerange(aes(ymin = INCOME.25, ymax = INCOME.75), 
+                 colour = "gray80", linewidth = 2, alpha = 0.5) +
+  #Debt line
+  geom_line(aes(y = AVG_DEBT), color = "firebrick", linewidth = 1) +
+  
+  #Saving Line
+  geom_line(aes(y = AVG_SAVING), color = "royalblue", linewidth = 1) +
+  
+  theme_minimal() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.ticks.y = element_line(color = "gray80"),
+    axis.text = element_text(color = "gray40"),
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  ) +
+  labs(title = "Financial Outlook by Age",
+       subtitle = "Income Range (25-75th percentile) with Debt and Savings",
+       x = "Age", y = "Amount ($)")
+print(p)
+
+income <- df_clean |>
+  select(INCOME, EDUC, EDUCL) |>
+ mutate(EDUC_LABEL = case_when(
+    EDUC < 8 ~ "No HS Diploma",
+    EDUC == 8 ~ "HS Diploma or Equivalent", 
+    EDUC == 9 ~ "Some College",
+    EDUC <= 11  ~ "Associate Degree",
+    EDUC == 12 ~ "Bachelor's Degree",
+    EDUC == 13 ~ "Master's Degree",
+    EDUC == 14 ~ "Doctorate or Professional Degree"
+  ))
+
+ggplot(income, aes(x = INCOME, y = EDUC_LABEL, fill = EDUC_LABEL)) +
+  geom_density_ridges(alpha = 0.6, bandwidth = 10000) +
+  coord_cartesian(xlim = c(0, 300000)) + 
+  theme_ridges() + 
+  labs(title = "Income Distribution by Education Level",
+       x = "Annual Income ($)", y = "Education Category") +
+  guides(fill = "none")
   
   
