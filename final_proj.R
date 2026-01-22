@@ -49,8 +49,22 @@ debt_cost <- df_clean |>
     DEBT_QUARTILE == 2 ~ "Moderate-Low Debt Burden",
     DEBT_QUARTILE == 3 ~ "Moderate-High Debt Burden",
     DEBT_QUARTILE == 4 ~ "High Debt Burden"
-  ))
+    )
+  ) |>
+  mutate("INCOME75" = quantile(INCOME, 0.75),
+         "INCOME25" = quantile(INCOME, 0.25))
+
 table(debt_cost$DEBT_QUARTILE)
 summary(debt_cost$DEBT_QUARTILE)
 
-num2 <- ggplot(debt_cost, mapping = aes())
+q2 <- ggplot(debt_cost, aes(THIRFT,INCOME)) +
+  theme(plot.background = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),  
+        axis.title = element_blank()) +
+  geom_linerange(debt_cost, mapping=aes(x=THRIFT, ymin=INCOME25, ymax=INCOME75), colour = "wheat2", alpha=.1)
+q2
