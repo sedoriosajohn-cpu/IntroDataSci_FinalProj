@@ -73,7 +73,8 @@ q1 <- ggplot(edu_retire, aes(x = EDUC_LABEL, y = WEIGHTED_THRIFT)) +
     x = "Highest Education Level Completed", 
     y = "Money Saved"
   ) +
-  theme(axis.text.x=element_text(angle = 45, hjust = 1))
+  theme(axis.text.x=element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = label_dollar())
 q1
 
 #2 The Hidden Cost of Debt on the Future
