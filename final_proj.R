@@ -50,26 +50,31 @@ edu_retire <- df_clean |>
     WEIGHTED_THRIFT = weighted.mean(THRIFT, WGT, na.rm = TRUE)
   )
 
+edu_retire <- edu_retire %>%
+  mutate(
+    EDUC_LABEL = factor(
+      EDUC_LABEL,
+      levels = c(
+        "No HS Diploma",
+        "HS Diploma or Equivalent",
+        "Some College",
+        "Associate Degree",
+        "Bachelor's Degree",
+        "Master's Degree",
+        "Doctorate or Professional Degree"
+      )
+    )
+  )
+
 q1 <- ggplot(edu_retire, aes(x = EDUC_LABEL, y = WEIGHTED_THRIFT)) +
   geom_col(fill = "blue", width = 0.6) +
   labs(
     title = "Education Level and Average Amount Saved for Retirement",
     x = "Highest Education Level Completed", 
     y = "Money Saved"
-  )
-q1
-
-q1_5 <- ggplot(edu_retire, aes(x = EDUC_LABEL, y = MEDIAN_THRIFT)) +
-  geom_col(fill = "blue", width = 0.6) +
-  labs(
-    title = "Education Level and Retirement Saving (Median)",
-    x = "Highest Education Level Completed",
-    y = "Median THRIFT Score"
   ) +
-  theme_minimal()
-
-q1_5
-
+  theme(axis.text.x=element_text(angle = 45, hjust = 1))
+q1
 
 #2 The Hidden Cost of Debt on the Future
 debt_cost <- df_clean |> 
