@@ -39,6 +39,38 @@ df_clean <- df_clean |>
     EDUC == 14 ~ "Doctorate or Professional Degree"
   ))
 
+
+#How does education level relate to retirement saving behavior? 
+edu_retire <- df_clean |>
+  select(EDUC_LABEL, THRIFT, WGT) |>
+  filter(!is.na(EDUC_LABEL), !is.na(THRIFT), !is.na(WGT)) |>
+  group_by(EDUC_LABEL) |>
+  summarize(
+    MEDIAN_THRIFT = median(THRIFT, na.rm = TRUE),
+    WEIGHTED_THRIFT = weighted.mean(THRIFT, WGT, na.rm = TRUE)
+  )
+
+q1 <- ggplot(edu_retire, aes(x = EDUC_LABEL, y = WEIGHTED_THRIFT)) +
+  geom_col(fill = "blue", width = 0.6) +
+  labs(
+    title = "Education Level and Average Amount Saved for Retirement",
+    x = "Highest Education Level Completed", 
+    y = "Money Saved"
+  )
+q1
+
+q1_5 <- ggplot(edu_retire, aes(x = EDUC_LABEL, y = MEDIAN_THRIFT)) +
+  geom_col(fill = "blue", width = 0.6) +
+  labs(
+    title = "Education Level and Retirement Saving (Median)",
+    x = "Highest Education Level Completed",
+    y = "Median THRIFT Score"
+  ) +
+  theme_minimal()
+
+q1_5
+
+
 #2 The Hidden Cost of Debt on the Future
 debt_cost <- df_clean |> 
   select("DEBT","INCOME","THRIFT","DEBT2INC") |>
@@ -49,7 +81,7 @@ debt_cost <- df_clean |>
     DEBT_QUARTILE == 2 ~ "Moderate-Low Debt Burden",
     DEBT_QUARTILE == 3 ~ "Moderate-High Debt Burden",
     DEBT_QUARTILE == 4 ~ "High Debt Burden"
-    )
+  )
   ) |>
   mutate("INCOME75" = quantile(INCOME, 0.75),
          "INCOME25" = quantile(INCOME, 0.25))
@@ -68,3 +100,5 @@ q2 <- ggplot(debt_cost, aes(THIRFT,INCOME)) +
         axis.title = element_blank()) +
   geom_linerange(debt_cost, mapping=aes(x=THRIFT, ymin=INCOME25, ymax=INCOME75), colour = "wheat2", alpha=.1)
 q2
+
+
