@@ -1,5 +1,6 @@
 library(tidyverse)
 library(skimr)
+library(scales)
 df <- read_csv("C:\\Users\\johnsedoriosa\\Downloads\\scfp2022excel\\SCFP2022.csv")
 
 #reading dataset
@@ -65,15 +66,16 @@ edu_retire <- edu_retire %>%
       )
     )
   )
-
-q1 <- ggplot(edu_retire, aes(x = EDUC_LABEL, y = WEIGHTED_THRIFT)) +
+q1 <- edu_retire %>% 
+  filter(!is.na(EDUC_LABEL)) %>% 
+  ggplot(aes(x = EDUC_LABEL, y = WEIGHTED_THRIFT)) +
   geom_col(fill = "blue", width = 0.6) +
   labs(
     title = "Education Level and Average Amount Saved for Retirement",
-    x = "Highest Education Level Completed", 
+    x = "Highest Education Level Completed",
     y = "Money Saved"
   ) +
-  theme(axis.text.x=element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_continuous(labels = label_dollar())
 q1
 
@@ -96,15 +98,7 @@ table(debt_cost$DEBT_QUARTILE)
 summary(debt_cost$DEBT_QUARTILE)
 
 q2 <- ggplot(debt_cost, aes(THIRFT,INCOME)) +
-  theme(plot.background = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text = element_blank(),  
-        axis.title = element_blank()) +
-  geom_linerange(debt_cost, mapping=aes(x=THRIFT, ymin=INCOME25, ymax=INCOME75), colour = "wheat2", alpha=.1)
+  geom_point()
 q2
 
 
