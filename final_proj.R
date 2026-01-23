@@ -1,6 +1,7 @@
 library(tidyverse)
 library(skimr)
 library(scales)
+library(plotly)
 df <- read_csv("C:\\Users\\johnsedoriosa\\Downloads\\scfp2022excel\\SCFP2022.csv")
 
 #reading dataset
@@ -79,44 +80,27 @@ q1 <- edu_retire %>%
   scale_y_continuous(labels = label_dollar())
 q1
 
-#2 The Hidden Cost of Debt on the Future
-debt_cost <- df_clean |> 
-  select("DEBT","INCOME","THRIFT","DEBT2INC") |>
-  filter(INCOME >= 0) |>
-  mutate("DEBT_QUARTILE" = ntile(DEBT2INC, 4))|>
-  mutate("DEBT_QUARTILE" = case_when(
-    DEBT_QUARTILE == 1 ~ "Low Debt Burden",
-    DEBT_QUARTILE == 2 ~ "Moderate-Low Debt Burden",
-    DEBT_QUARTILE == 3 ~ "Moderate-High Debt Burden",
-    DEBT_QUARTILE == 4 ~ "High Debt Burden"
-  )
-  ) |>
-  mutate("INCOME75" = quantile(INCOME, 0.75),
-         "INCOME25" = quantile(INCOME, 0.25))
-
-table(debt_cost$DEBT_QUARTILE)
-summary(debt_cost$DEBT_QUARTILE)
-
-retire_sum <- retire |>
+#2
+ques2 <- df_clean |>
   filter(DEBT < 500000, AGE < 67) |>
   group_by(AGE) |>
   filter(n() >= 20) |> #filters if there's at least 20 rows at the same age
-  summarize(
+  mutate(
     INCOME.25 = quantile(INCOME, 0.25, na.rm = TRUE),
     INCOME.75 = quantile(INCOME, 0.75, na.rm = TRUE),
-    AVG_DEBT = median(DEBT, na.rm=TRUE),
-    AVG_SAVING = median(SAVING, na.rm = TRUE)
+    WEIGHTED_THRIFT = weighted.mean(THRIFT, WGT, na.rm = TRUE),
+    WEIGHTED_DEBT = weighted.mean(DEBT, WGT, na.rm = TRUE)
   )
 
-q2 <- ggplot(retire_sum, aes(x = AGE)) +
+q2 <- ggplot(ques2, aes(x = AGE)) +
   #Background range (25th to 75th percentile)
   geom_linerange(aes(ymin = INCOME.25, ymax = INCOME.75), 
                  colour = "gray80", linewidth = 2, alpha = 0.5) +
   #Debt line
-  geom_line(aes(y = AVG_DEBT), color = "firebrick", linewidth = 1) +
+  geom_line(aes(y = WEIGHTED_DEBT), color = "firebrick", linewidth = 1) +
   
-  #Saving Line
-  geom_line(aes(y = AVG_SAVING), color = "royalblue", linewidth = 1) +
+  #retirement Line
+  geom_line(aes(y = WEIGHTED_THRIFT), color = "royalblue", linewidth = 1) +
   
   theme_minimal() +
   theme(
@@ -126,10 +110,11 @@ q2 <- ggplot(retire_sum, aes(x = AGE)) +
     axis.text = element_text(color = "gray40"),
     plot.title = element_text(face = "bold", hjust = 0.5)
   ) +
-  labs(title = "Financial Outlook by Age",
+  labs(title = "Financial Outlook by Approaching Retirement Age",
        subtitle = "Income Range (25-75th percentile) with Debt and Savings",
        x = "Age", y = "Amount ($)") +
   scale_y_continuous(labels = label_dollar())
 print(q2)
 
-
+q2_plotly <- ggplotly(q2)
+q2_plotly
